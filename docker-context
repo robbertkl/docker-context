@@ -1,0 +1,30 @@
+#!/bin/sh
+
+CONTEXT="$(basename ${0})"
+if [ -n "${1}" ]; then
+  CONTEXT="${1}"
+fi
+
+if docker context inspect "${CONTEXT}" > /dev/null 2>&1
+then
+  export DOCKER_CONTEXT="${CONTEXT}"
+else
+  export DOCKER_CONTEXT="default"
+fi
+
+clear
+
+CHECK_PROFILE=$(osascript -e 'tell application "Terminal" to get settings sets whose name is "'${CONTEXT}'"')
+if [ -n "${CHECK_PROFILE}" ]
+then
+  CURRENT_PROFILE=$(osascript -e 'tell front window of application "Terminal" to get name of current settings of selected tab')
+  osascript -e 'tell application "Terminal" to set current settings of front window to settings set "'${CONTEXT}'"'
+fi
+
+${SHELL} -l
+clear
+
+if [ -n "${CHECK_PROFILE}" ]
+then
+  osascript -e 'tell application "Terminal" to set current settings of front window to settings set "'${CURRENT_PROFILE}'"'
+fi
